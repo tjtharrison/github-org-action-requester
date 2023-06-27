@@ -28,8 +28,6 @@ jobs:
             GH_ISSUE_BODY: ${{ github.event.issue.body }}
             GH_ISSUE_NUMBER: ${{ github.event.issue.number }}
             GH_ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |            
-            echo $GH_ISSUE_BODY
-            echo "######"
-            
             python3 src/process_issue.py
