@@ -1,0 +1,27 @@
+# On issue creation, process the request
+name: Issue Process Request
+
+permissions:
+    issues: write
+    contents: read
+    pull-requests: write
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+    process-request:
+        runs-on: ubuntu-latest
+        steps:
+        # Checkout repo
+        - name: Checkout
+          uses: actions/checkout@v3
+        - name: Process Request
+          env:
+            GH_ISSUE_TITLE: ${{ github.event.issue.title }}
+            GH_ISSUE_BODY: ${{ github.event.issue.body }}
+            GH_ISSUE_NUMBER: ${{ github.event.issue.number }}
+            GH_ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          run: |
+            python3 src/process_issue.py
