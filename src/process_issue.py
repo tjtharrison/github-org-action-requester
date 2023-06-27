@@ -3,6 +3,8 @@
 import os
 import subprocess
 import configparser
+import shutil
+import bandit
 
 # If not on github actions, load .env file
 if not os.environ.get("GITHUB_ACTIONS"):
@@ -13,7 +15,7 @@ gh_issue_title = os.environ["GH_ISSUE_TITLE"]
 gh_issue_body = os.environ["GH_ISSUE_BODY"]
 gh_issue_number = os.environ["GH_ISSUE_NUMBER"]
 gh_issue_author = os.environ["GH_ISSUE_AUTHOR"]
-
+action_dir = "action_dir"
 
 def read_issue_body():
     """
@@ -51,6 +53,43 @@ def read_issue_body():
     return action_request
 
 
+def security_checks(action_requests):
+    """
+    Run security checks on action.
+
+    Args:
+        action_requests: Dictionary with action requests.
+
+    Returns:
+        True if security checks pass.
+    """
+    print("Running Bandit security tests")
+    try:
+        subprocess.check_output(
+            f"bandit -r {action_dir}",
+            shell=True,
+            stderr=subprocess.STDOUT
+        )
+    except subprocess.CalledProcessError as error_message:
+        print(f"Error running security tests: {error_message}")
+        raise Exception(f"Error running security tests: {error_message}") from error_message
+    #
+    # print("Running Depentabot")
+    # try:
+    #     subprocess.check_output(
+    #         f"dependabot --directory {action_dir} --testd",
+    #         shell=True,
+    #         stderr=subprocess.STDOUT
+    #     )
+    # except subprocess.CalledProcessError as error_message:
+    #     print(f"Error running security tests: {error_message}")
+    #     raise Exception(f"Error running security tests: {error_message}") from error_message
+
+
+    print("Security tests passed")
+
+    return True
+
 def validate_inputs(action_requests):
     """
     Validate action request inputs.
@@ -59,6 +98,12 @@ def validate_inputs(action_requests):
         True if provided values are valid.
 
     """
+    print("Creating working directory")
+    try:
+        os.mkdir(action_dir)
+    except FileExistsError:
+        pass
+
     print("Validating action request inputs")
     for action_request in action_requests:
         action_name = action_requests[action_request]["name"]
@@ -72,7 +117,7 @@ def validate_inputs(action_requests):
         print(f"Checking if action is available")
         try:
             subprocess.check_output(
-                f"gh repo clone {action_name} -- -b {action_version}",
+                f"gh repo clone {action_name} {action_dir} -- -b {action_version}",
                 shell=True,
                 stderr=subprocess.STDOUT
             )
@@ -80,18 +125,7 @@ def validate_inputs(action_requests):
             print(f"Error cloning action: {error_message}")
             raise Exception(f"Error cloning action: {error_message}") from error_message
 
-    # Delete directory
-    try:
-        subprocess.check_output(
-            f"rm -rf {repo_name}",
-            shell=True,
-            stderr=subprocess.STDOUT
-        )
-    except subprocess.CalledProcessError as error_message:
-        print(f"Error deleting directory: {error_message}")
-        raise Exception(f"Error deleting directory: {error_message}") from error_message
-
-    print("Repository cloned successfully at requested version")
+    print("Repository cloned successfully at requested version, working directory ready")
 
     return True
 
@@ -103,6 +137,8 @@ def main():
     Returns:
         True if issue is processed successfully.
     """
+
+    # Parse values from issue body
     print(f"Processing issue: #{gh_issue_number}")
     try:
         action_requests = read_issue_body()
@@ -116,12 +152,33 @@ def main():
         print(f"No actions requested in issue body")
         return False
 
+    # Validate inputs
     try:
         validate_inputs(action_requests)
     except Exception as e:
         print(f"Error processing issue: {e}")
         return False
 
+    # Run some security tests
+    print()
+    print("Running security tests")
+    try:
+        security_checks(action_requests)
+    except Exception as e:
+        print(f"Error running security tests: {e}")
+        return False
+
+
+    print()
+    print("Issue processed successfully")
+    print("Cleaning up working directory")
+    try:
+        shutil.rmtree(action_dir, ignore_errors=True)
+    except OSError as error_message:
+        print(f"Error cleaning up working directory: {error_message}")
+        return False
+
+    print("All done, exiting")
     return True
 
 
