@@ -38,6 +38,7 @@ jobs:
           uses: stefanzweifel/git-auto-commit-action@v4
           with:
             branch: ${{ env.BRANCH_NAME }}
+            create_branch: true
         - name: Create PR
           env:
             GH_ISSUE_TITLE: ${{ github.event.issue.title }}
