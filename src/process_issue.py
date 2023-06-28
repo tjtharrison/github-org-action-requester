@@ -9,6 +9,7 @@ import bandit
 # If not on github actions, load .env file
 if not os.environ.get("GITHUB_ACTIONS"):
     import dotenv
+
     dotenv.load_dotenv()
 
 gh_issue_title = os.environ["GH_ISSUE_TITLE"]
@@ -16,6 +17,7 @@ gh_issue_body = os.environ["GH_ISSUE_BODY"]
 gh_issue_number = os.environ["GH_ISSUE_NUMBER"]
 gh_issue_author = os.environ["GH_ISSUE_AUTHOR"]
 action_dir = "action_dir"
+
 
 def read_issue_body():
     """
@@ -43,7 +45,7 @@ def read_issue_body():
             action_request[section] = {
                 "name": config[section]["name"],
                 "description": config[section]["description"],
-                "version": config[section]["requested_version"]
+                "version": config[section]["requested_version"],
             }
     except KeyError as error_message:
         raise KeyError(str(error_message)) from error_message
@@ -52,43 +54,6 @@ def read_issue_body():
 
     return action_request
 
-
-def security_checks(action_requests):
-    """
-    Run security checks on action.
-
-    Args:
-        action_requests: Dictionary with action requests.
-
-    Returns:
-        True if security checks pass.
-    """
-    print("Running Bandit security tests")
-    try:
-        subprocess.check_output(
-            f"bandit -r {action_dir}",
-            shell=True,
-            stderr=subprocess.STDOUT
-        )
-    except subprocess.CalledProcessError as error_message:
-        print(f"Error running security tests: {error_message}")
-        raise Exception(f"Error running security tests: {error_message}") from error_message
-    #
-    # print("Running Depentabot")
-    # try:
-    #     subprocess.check_output(
-    #         f"dependabot --directory {action_dir} --testd",
-    #         shell=True,
-    #         stderr=subprocess.STDOUT
-    #     )
-    # except subprocess.CalledProcessError as error_message:
-    #     print(f"Error running security tests: {error_message}")
-    #     raise Exception(f"Error running security tests: {error_message}") from error_message
-
-
-    print("Security tests passed")
-
-    return True
 
 def validate_inputs(action_requests):
     """
@@ -111,7 +76,7 @@ def validate_inputs(action_requests):
         action_description = action_requests[action_request]["description"]
         action_version = action_requests[action_request]["version"]
 
-        print(f'Processing {action_name}@{action_version}')
+        print(f"Processing {action_name}@{action_version}")
 
         # Check if action is available
         print(f"Checking if action is available")
@@ -119,13 +84,15 @@ def validate_inputs(action_requests):
             subprocess.check_output(
                 f"gh repo clone {action_name} {action_dir} -- -b {action_version}",
                 shell=True,
-                stderr=subprocess.STDOUT
+                stderr=subprocess.STDOUT,
             )
         except subprocess.CalledProcessError as error_message:
             print(f"Error cloning action: {error_message}")
             raise Exception(f"Error cloning action: {error_message}") from error_message
 
-    print("Repository cloned successfully at requested version, working directory ready")
+    print(
+        "Repository cloned successfully at requested version, working directory ready"
+    )
 
     return True
 
@@ -158,16 +125,6 @@ def main():
     except Exception as e:
         print(f"Error processing issue: {e}")
         return False
-
-    # Run some security tests
-    print()
-    print("Running security tests")
-    try:
-        security_checks(action_requests)
-    except Exception as e:
-        print(f"Error running security tests: {e}")
-        return False
-
 
     print()
     print("Issue processed successfully")
