@@ -112,7 +112,6 @@ def main():
     Returns:
         True if issue is processed successfully.
     """
-
     # Parse values from issue body
     print(f"Processing issue: #{gh_issue_number}")
     try:
