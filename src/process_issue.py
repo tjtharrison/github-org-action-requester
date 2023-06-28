@@ -132,6 +132,16 @@ def main():
 
     print()
     print("Issue processed successfully")
+    # Remove .git directory from working directory
+    print("Removing .git directory from working directory")
+    try:
+        subprocess.check_output(
+            f"rm -rf {ACTION_DIR}/.git", shell=True, stderr=subprocess.STDOUT
+        )
+    except subprocess.CalledProcessError as error_message:
+        print(f"Error removing .git directory: {error_message}")
+        return False
+
 
     print("All done, exiting")
     return True
