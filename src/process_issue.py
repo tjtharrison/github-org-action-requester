@@ -1,9 +1,9 @@
 """Process issue from GitHub API."""
 
-import os
-import subprocess
 import configparser
+import os
 import shutil
+import subprocess
 
 # If not on github actions, load .env file
 if not os.environ.get("GITHUB_ACTIONS"):
