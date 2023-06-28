@@ -10,6 +10,9 @@ on:
   issues:
     types: [opened]
 
+env:
+  BRANCH_NAME: "issue-${{ github.event.issue.number }}"
+
 jobs:
     process-request:
         runs-on: ubuntu-latest
@@ -31,3 +34,17 @@ jobs:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |            
             python3 src/process_issue.py
+        - name: Create branch
+          run: |
+              git config --global user.name "github-actions[bot]"
+              git config --global user.email "github-actions[bot]@users.noreply.github.com"
+              git checkout -b ${{ env.BRANCH_NAME }}
+              git add .
+              git commit -m "Update PR with new action request"
+              git push origin ${{ env.BRANCH_NAME }}
+        - name: Create PR
+          env:
+            GH_ISSUE_TITLE: ${{ github.event.issue.title }}
+            GH_ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+          run: |
+                gh pr create --title "GHA request: ${{ env.GH_ISSUE_TITLE }}" --body "Request to install GitHub action by @${{ env.GH_ISSUE_AUTHOR }}" --base main --head ${{ env.BRANCH_NAME }}
