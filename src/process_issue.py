@@ -4,7 +4,6 @@ import os
 import subprocess
 import configparser
 import shutil
-import bandit
 
 # If not on github actions, load .env file
 if not os.environ.get("GITHUB_ACTIONS"):
@@ -22,6 +21,9 @@ action_dir = "action_dir"
 def read_issue_body():
     """
     Read issue body provided and return action request.
+
+    Raises:
+        KeyError: If issue body is missing required fields.
 
     Returns:
         Dictionary with action request.
@@ -58,6 +60,12 @@ def read_issue_body():
 def validate_inputs(action_requests):
     """
     Validate action request inputs.
+
+    Args:
+        action_requests (dict): Dictionary with action requests.
+
+    Raises:
+        Exception: If provided values are not valid.
 
     Returns:
         True if provided values are valid.
