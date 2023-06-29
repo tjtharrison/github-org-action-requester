@@ -39,12 +39,19 @@ jobs:
           with:
             branch: ${{ env.BRANCH_NAME }}
             create_branch: true
+        - name: Get token from Github App
+          id: app_token
+          uses: getsentry/action-github-app-token@v2
+          with:
+            app_id: ${{ secrets.APP_ACTION_SEC_SCANNER_ID }}
+            private_key: ${{ secrets.APP_ACTION_SEC_SCANNER_PEM }}
         - name: Create PR
           env:
             GH_ISSUE_TITLE: ${{ github.event.issue.title }}
             GH_ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
             GH_ISSUE_NUMBER: ${{ github.event.issue.number }}
-            GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            # GitHub app used so that actions can be run on the PR
+            GH_TOKEN: ${{ steps.app_token.outputs.token }}
           run: |
                 pr_body_text="Request to install GitHub action by @${{ env.GH_ISSUE_AUTHOR }}
             
