@@ -43,7 +43,7 @@ def read_issue_body():
         for section in sections:
             print()
             print(f"Processing request: {section}")
-            action_request[section] = {
+            action_request = {
                 "name": config[section]["name"],
                 "description": config[section]["description"],
                 "version": config[section]["requested_version"],
@@ -56,12 +56,12 @@ def read_issue_body():
     return action_request
 
 
-def validate_inputs(action_requests):
+def validate_inputs(action_request):
     """
     Validate action request inputs.
 
     Args:
-        action_requests (dict): Dictionary with action requests.
+        action_request (dict): Dictionary with action request.
 
     Raises:
         Exception: If provided values are not valid.
@@ -77,23 +77,22 @@ def validate_inputs(action_requests):
         pass
 
     print("Validating action request inputs")
-    for action_request in action_requests:
-        action_name = action_requests[action_request]["name"]
-        action_version = action_requests[action_request]["version"]
+    action_name = action_request["name"]
+    action_version = action_request["version"]
 
-        print(f"Processing {action_name}@{action_version}")
+    print(f"Processing {action_name}@{action_version}")
 
-        # Check if action is available
-        print("Checking if action is available")
-        try:
-            subprocess.check_output(
-                f"gh repo clone {action_name} {ACTION_DIR} -- -b {action_version}",
-                shell=True,
-                stderr=subprocess.STDOUT,
-            )
-        except subprocess.CalledProcessError as error_message:
-            print(f"Error cloning action: {error_message}")
-            raise Exception(f"Error cloning action: {error_message}") from error_message
+    # Check if action is available
+    print("Checking if action is available")
+    try:
+        subprocess.check_output(
+            f"gh repo clone {action_name} {ACTION_DIR} -- -b {action_version}",
+            shell=True,
+            stderr=subprocess.STDOUT,
+        )
+    except subprocess.CalledProcessError as error_message:
+        print(f"Error cloning action: {error_message}")
+        raise Exception(f"Error cloning action: {error_message}") from error_message
 
     print(
         "Repository cloned successfully at requested version, working directory ready"
@@ -112,7 +111,7 @@ def main():
     # Parse values from issue body
     print(f"Processing issue: #{gh_issue_number}")
     try:
-        action_requests = read_issue_body()
+        action_request = read_issue_body()
     except TypeError as error_message:
         print(f"Error reading issue body: {error_message}")
         return False
@@ -125,7 +124,7 @@ def main():
 
     # Validate inputs
     try:
-        validate_inputs(action_requests)
+        validate_inputs(action_request)
     except Exception as error_message:
         print(f"Error processing issue: {error_message}")
         return False
@@ -142,6 +141,18 @@ def main():
         print(f"Error removing .git directory: {error_message}")
         return False
 
+    print("Writing action request to file")
+    # Write action request to file
+    try:
+        with open(f"action_request.txt", "w", encoding="UTF-8") as action_request_file:
+            action_request_file.write(
+                f'Action name: {action_request["name"]}\n'
+                f'Action description: {action_request["description"]}\n'
+                f'Action version: {action_request["version"]}\n'
+            )
+    except KeyError as error_message:
+        print(f"Error writing action request to file: {error_message}")
+        return False
 
     print("All done, exiting")
     return True
