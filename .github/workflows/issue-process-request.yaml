@@ -43,18 +43,22 @@ jobs:
           env:
             GH_ISSUE_TITLE: ${{ github.event.issue.title }}
             GH_ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+            GH_ISSUE_NUMBER: ${{ github.event.issue.number }}
             GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |
                 pr_body_text="Request to install GitHub action by @${{ env.GH_ISSUE_AUTHOR }}
             
-                ## Request details
+                ## Request details 
                 Title: ${{ env.GH_ISSUE_TITLE }}
                 Issue number: ${{ env.GH_ISSUE_NUMBER }}
                 $(cat action_request.txt)
+            
+                ## Security checks  
                 Security checks will run against this PR to validate the security of the action. 🕵️
                 PR will be updated with the results of the security checks. 📝
                 Any issues found will be reported in the PR. 🚨
                 
+                ## Review
                 Findings should be reviewed by the requestor. 👀
                 Final decision will be made by the repository owner. 👑"
                 
