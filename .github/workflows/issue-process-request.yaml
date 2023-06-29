@@ -54,4 +54,4 @@ jobs:
                 Findings should be reviewed by the requestor. 👀
                 Final decision will be made by the repository owner. 👑                
                 "
-                gh pr create --title "GHA request: issue-${{ github.event.issue.number }} --body $pr_body --base main --head ${{ env.BRANCH_NAME }}
+                gh pr create --title "GHA request: issue-${{ github.event.issue.number }} --body $pr_body --base main --head ${{ env.BRANCH_NAME }}"
