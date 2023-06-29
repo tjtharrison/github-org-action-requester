@@ -11,7 +11,7 @@ permissions: read-all
 jobs:
     checkov:
         # If PR has label "security-checks"
-        if: github.event.label.name == '<security-checks>'
+        if: github.event.label.name == 'security-checks'
         runs-on: ubuntu-latest
         name: checkov-action
         steps:
@@ -24,7 +24,7 @@ jobs:
             with:
               directory: action_dir
     codeql:
-      if: github.event.label.name == '<security-checks>'
+      if: github.event.label.name == 'security-checks'
       name: CodeQL
       runs-on: ubuntu-latest
       permissions:
@@ -39,7 +39,7 @@ jobs:
         - name: Perform CodeQL Analysis
           uses: github/codeql-action/analyze@v2
     cleanup-dir:
-      if: github.event.label.name == '<security-checks>'
+      if: github.event.label.name == 'security-checks'
       needs: ["checkov", "codeql"]
       name: Cleanup
       runs-on: ubuntu-latest
