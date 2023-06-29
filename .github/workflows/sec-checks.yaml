@@ -1,0 +1,57 @@
+name: Action checkov
+on:
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "action_dir/**"
+
+permissions: read-all
+
+jobs:
+    checkov:
+        # If PR has label "security-checks"
+        if: ${{ github.labels.contains('security-checks') }}
+        runs-on: ubuntu-latest
+        name: checkov-action
+        steps:
+          - name: Checkout repo
+            uses: actions/checkout@v3
+
+          - name: Run Checkov action
+            id: checkov
+            uses: bridgecrewio/checkov-action@v12.2381.0
+            with:
+              directory: action_dir
+    codeql:
+      if: ${{ github.labels.contains('security-checks') }}
+      name: CodeQL
+      runs-on: ubuntu-latest
+      permissions:
+        actions: read
+        contents: read
+        security-events: write
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+        - name: Initialize CodeQL
+          uses: github/codeql-action/init@v2
+          with:
+            languages: ${{ matrix.language }}
+        - name: Perform CodeQL Analysis
+          uses: github/codeql-action/analyze@v2
+          with:
+            category: "/language:${{matrix.language}}"
+    cleanup-dir:
+      if: ${{ github.labels.contains('security-checks') }}
+      needs: ["checkov", "codeql"]
+      name: Cleanup
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repo
+          uses: actions/checkout@v3
+        - name: Cleanup
+          run: |
+            rm -rf action_dir
+        - name: Update PR
+          uses: stefanzweifel/git-auto-commit-action@v4

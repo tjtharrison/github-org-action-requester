@@ -64,4 +64,4 @@ jobs:
                 
                 echo -e "$pr_body_text" > pr_body.txt
                 
-                pr_body=$(cat pr_body.txt); gh pr create --title "GHA request: issue-${{ github.event.issue.number }}" --body "$pr_body" --base main --head "${{ env.BRANCH_NAME }}"
+                pr_body=$(cat pr_body.txt); gh pr create --title "GHA request: issue-${{ github.event.issue.number }}" --body "$pr_body" --base main --head "${{ env.BRANCH_NAME }}" --label "security-checks"
