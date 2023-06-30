@@ -65,11 +65,19 @@ jobs:
         with:
           node-version: 14.x
 
+      - name: Get token from Github App
+        id: app_token
+        uses: getsentry/action-github-app-token@v2
+        with:
+          app_id: ${{ secrets.APP_ACTION_SEC_SCANNER_ID }}
+          private_key: ${{ secrets.APP_ACTION_SEC_SCANNER_PEM }}
+
       - name: Add GitHub Action Details from PR
         uses: ActionsDesk/github-actions-details-action@v1.2.1
         with:
-          search_token: ${{ secrets.GITHUB_TOKEN }}
+          search_token: ${{ steps.app_token.outputs.token }}
           allow_list_path: github-actions-allow-list.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
   cleanup-dir:
     if: contains("GHA request:", "${{ github.event.pull_request.title }}")
     needs: ["checkov", "codeql", "get-action-details"]
