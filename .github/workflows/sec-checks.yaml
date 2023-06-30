@@ -4,48 +4,48 @@ on:
     branches:
       - "main"
 
-permissions: read-all
+permissions:
+  contents: write
 
 jobs:
-    checkov:
-        # If PR has label "security-checks"
-        if: github.event.label.name == 'security-checks'
-        runs-on: ubuntu-latest
-        name: checkov-action
-        steps:
-          - name: Checkout repo
-            uses: actions/checkout@v3
+  checkov:
+    if: contains("GHA request:", "${{ github.event.pull_request.title }}")
+    runs-on: ubuntu-latest
+    name: checkov-action
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-          - name: Run Checkov action
-            id: checkov
-            uses: bridgecrewio/checkov-action@v12.2407.0
-            with:
-              directory: action_dir
-    codeql:
-      if: github.event.label.name == 'security-checks'
-      name: CodeQL
-      runs-on: ubuntu-latest
-      permissions:
-        actions: read
-        contents: read
-        security-events: write
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v3
-        - name: Initialize CodeQL
-          uses: github/codeql-action/init@v2
-        - name: Perform CodeQL Analysis
-          uses: github/codeql-action/analyze@v2
-    cleanup-dir:
-      if: github.event.label.name == 'security-checks'
-      needs: ["checkov", "codeql"]
-      name: Cleanup
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout repo
-          uses: actions/checkout@v3
-        - name: Cleanup
-          run: |
-            rm -rf action_dir
-        - name: Update PR
-          uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Run Checkov action
+        id: checkov
+        uses: bridgecrewio/checkov-action@v12.2381.0
+        with:
+          directory: action_dir
+  codeql:
+    if: contains("GHA request:", "${{ github.event.pull_request.title }}")
+    name: CodeQL
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+  cleanup-dir:
+    if: contains("GHA request:", "${{ github.event.pull_request.title }}")
+    needs: ["checkov", "codeql"]
+    name: Cleanup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Cleanup
+        run: |
+          rm -rf action_dir
+      - name: Update PR
+        uses: stefanzweifel/git-auto-commit-action@v4
