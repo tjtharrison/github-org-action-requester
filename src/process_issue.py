@@ -177,7 +177,7 @@ def main():
         raise yaml.YAMLError() from error_message
 
     # Add action to allow list
-    full_action_name = f'{action_request["name"]}/{action_request["version"]}'
+    full_action_name = f'{action_request["name"]}@{action_request["version"]}'
     if full_action_name not in action_allow_list_contents["actions"]:
         print(f"Adding {full_action_name} to allow list")
         action_allow_list_contents["actions"].append(full_action_name)
