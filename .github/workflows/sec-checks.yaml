@@ -73,7 +73,7 @@ jobs:
           private_key: ${{ secrets.APP_ACTION_SEC_SCANNER_PEM }}
 
       - name: Add GitHub Action Details from PR
-        uses: ActionsDesk/github-actions-details-action@v1.2.1
+        uses: ActionsDesk/github-actions-details-action@v2.2.0
         with:
           search_token: ${{ steps.app_token.outputs.token }}
           allow_list_path: github-actions-allow-list.yml
