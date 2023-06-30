@@ -1,2 +1,3 @@
 actions:
 - bridgecrewio/checkov-action@v12
+- tjtharrison/github-actions-docs/1.2.0
