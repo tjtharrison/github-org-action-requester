@@ -2,9 +2,10 @@
 
 import configparser
 import os
-import subprocess
-import yaml
 import shutil
+import subprocess
+
+import yaml
 
 # If not on github actions, load .env file
 if not os.environ.get("GITHUB_ACTIONS"):
@@ -108,6 +109,11 @@ def main():
     """
     Process issue from GitHub API.
 
+    Raises:
+        FileNotFoundError: If mkgendocs.yaml is not found
+        YAMLError: If there is an error parsing mkgendocs.yaml
+
+
     Returns:
         True if issue is processed successfully.
     """
@@ -147,7 +153,7 @@ def main():
     print("Writing action request to file")
     # Write action request to file
     try:
-        with open(f"action_request.txt", "w", encoding="UTF-8") as action_request_file:
+        with open("action_request.txt", "w", encoding="UTF-8") as action_request_file:
             action_request_file.write(
                 f'Action name: {action_request["name"]}\n'
                 f'Action description: {action_request["description"]}\n'
@@ -160,11 +166,13 @@ def main():
     # Updating request yaml
     print("Updating request yaml")
     try:
-        with open("github-actions-allow-list.yml") as github_actions_allow_list:
+        with open(
+            "github-actions-allow-list.yml", encoding="UTF-8"
+        ) as github_actions_allow_list:
             action_allow_list_contents = yaml.safe_load(github_actions_allow_list)
-    except FileNotFoundError:
+    except FileNotFoundError as error_message:
         print("github-actions-allow-list.yml not found")
-        raise FileNotFoundError
+        raise FileNotFoundError from error_message
     except yaml.YAMLError as error_message:
         raise yaml.YAMLError() from error_message
 
@@ -178,11 +186,12 @@ def main():
 
     # Write allow list to file
     try:
-        with open("github-actions-allow-list.yml", "w") as github_actions_allow_list:
+        with open(
+            "github-actions-allow-list.yml", "w", encoding="UTF-8"
+        ) as github_actions_allow_list:
             yaml.dump(action_allow_list_contents, github_actions_allow_list)
     except yaml.YAMLError as error_message:
         raise yaml.YAMLError() from error_message
-
 
     print("All done, exiting")
     return True
