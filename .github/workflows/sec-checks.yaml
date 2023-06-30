@@ -6,6 +6,8 @@ on:
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
   checkov:
@@ -36,6 +38,17 @@ jobs:
         uses: github/codeql-action/init@v2
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
+      - name: Setup node
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: 14.x
+
+      - name: Add GitHub Action Details from PR
+        uses: ActionsDesk/github-actions-details-action@v1.2.1
+        with:
+          search_token: ${{ secrets.GITHUB_TOKEN }}
+          # same as defined under `on.pull_requests.paths`
+          allow_list_path: github-actions-allow-list.yml
   cleanup-dir:
     if: contains("GHA request:", "${{ github.event.pull_request.title }}")
     needs: ["checkov", "codeql"]

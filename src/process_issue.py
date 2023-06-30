@@ -3,6 +3,8 @@
 import configparser
 import os
 import subprocess
+import yaml
+import shutil
 
 # If not on github actions, load .env file
 if not os.environ.get("GITHUB_ACTIONS"):
@@ -74,7 +76,8 @@ def validate_inputs(action_request):
     try:
         os.mkdir(ACTION_DIR)
     except FileExistsError:
-        pass
+        print("Working directory already exists, removing")
+        shutil.rmtree(ACTION_DIR)
 
     print("Validating action request inputs")
     action_name = action_request["name"]
@@ -153,6 +156,33 @@ def main():
     except KeyError as error_message:
         print(f"Error writing action request to file: {error_message}")
         return False
+
+    # Updating request yaml
+    print("Updating request yaml")
+    try:
+        with open("github-actions-allow-list.yml") as github_actions_allow_list:
+            action_allow_list_contents = yaml.safe_load(github_actions_allow_list)
+    except FileNotFoundError:
+        print("github-actions-allow-list.yml not found")
+        raise FileNotFoundError
+    except yaml.YAMLError as error_message:
+        raise yaml.YAMLError() from error_message
+
+    # Add action to allow list
+    full_action_name = f'{action_request["name"]}/{action_request["version"]}'
+    if full_action_name not in action_allow_list_contents["actions"]:
+        print(f"Adding {full_action_name} to allow list")
+        action_allow_list_contents["actions"].append(full_action_name)
+    else:
+        print(f"{full_action_name} already in allow list")
+
+    # Write allow list to file
+    try:
+        with open("github-actions-allow-list.yml", "w") as github_actions_allow_list:
+            yaml.dump(action_allow_list_contents, github_actions_allow_list)
+    except yaml.YAMLError as error_message:
+        raise yaml.YAMLError() from error_message
+
 
     print("All done, exiting")
     return True
