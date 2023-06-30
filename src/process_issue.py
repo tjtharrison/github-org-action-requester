@@ -2,9 +2,10 @@
 
 import configparser
 import os
-import subprocess
-import yaml
 import shutil
+import subprocess
+
+import yaml
 
 # If not on github actions, load .env file
 if not os.environ.get("GITHUB_ACTIONS"):
@@ -182,7 +183,6 @@ def main():
             yaml.dump(action_allow_list_contents, github_actions_allow_list)
     except yaml.YAMLError as error_message:
         raise yaml.YAMLError() from error_message
-
 
     print("All done, exiting")
     return True
