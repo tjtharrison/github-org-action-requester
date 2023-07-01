@@ -48,8 +48,21 @@ jobs:
         uses: github/codeql-action/analyze@v2
         with:
           category: "/language:${{matrix.language}}"
-
+  cleanup-dir:
+    if: contains("GHA request:", "${{ github.event.pull_request.title }}")
+    needs: ["checkov", "codeql", "get-action-details"]
+    name: Cleanup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Cleanup
+        run: |
+          rm -rf action_dir
+      - name: Update PR
+        uses: stefanzweifel/git-auto-commit-action@v4
   get-action-details:
+    needs: ["cleanup-dir"]
     name: get-action-details
     runs-on: ubuntu-latest
     if: contains("GHA request:", "${{ github.event.pull_request.title }}")
@@ -78,16 +91,3 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         run: |
           python3 src/get_action_detail.py
-  cleanup-dir:
-    if: contains("GHA request:", "${{ github.event.pull_request.title }}")
-    needs: ["checkov", "codeql", "get-action-details"]
-    name: Cleanup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-      - name: Cleanup
-        run: |
-          rm -rf action_dir
-      - name: Update PR
-        uses: stefanzweifel/git-auto-commit-action@v4
