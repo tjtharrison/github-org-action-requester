@@ -73,6 +73,8 @@ jobs:
           private_key: ${{ secrets.APP_ACTION_SEC_SCANNER_PEM }}
 
       - name: Get action detail
+        env:
+          PR_NUMBER: ${{ github.event.number }}
         run: |
           python3 src/get_action_detail.py
   cleanup-dir:

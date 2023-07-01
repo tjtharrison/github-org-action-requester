@@ -17,7 +17,7 @@ def get_action_name():
     modified_action_name = (
         str(
             subprocess.check_output(
-                'gh pr diff 49 | grep "^+" | grep -v "yml"',
+                f'gh pr diff {os.environ.get("PR_NUMBER")} | grep "^+" | grep -v "yml"',
                 shell=True,
                 stderr=subprocess.STDOUT,
             )
