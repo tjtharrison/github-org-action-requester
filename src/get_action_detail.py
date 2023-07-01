@@ -74,7 +74,7 @@ def main():
         json={
             "query": f'query {{ repository(owner: "{action_name.split("/")[0]}", name: "{action_name.split("/")[1]}") {{ hasIssuesEnabled }} }}'
         },
-        timeout=5,
+        timeout=5
     ).json()["data"]["repository"]["hasIssuesEnabled"]
 
     # Check dependabot findings via graphql
