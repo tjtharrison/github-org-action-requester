@@ -50,7 +50,7 @@ jobs:
           category: "/language:${{matrix.language}}"
   cleanup-dir:
     if: contains("GHA request:", "${{ github.event.pull_request.title }}")
-    needs: ["checkov", "codeql", "get-action-details"]
+    needs: ["checkov", "codeql"]
     name: Cleanup
     runs-on: ubuntu-latest
     steps:
