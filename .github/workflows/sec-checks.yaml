@@ -52,6 +52,7 @@ jobs:
   get-action-details:
     name: get-action-details
     runs-on: ubuntu-latest
+    if: contains("GHA request:", "${{ github.event.pull_request.title }}")
     permissions:
       contents: read
       issues: write
