@@ -52,6 +52,7 @@ jobs:
   get-action-details:
     name: get-action-details
     runs-on: ubuntu-latest
+    if: contains("GHA request:", "${{ github.event.pull_request.title }}")
     permissions:
       contents: read
       issues: write
@@ -72,12 +73,11 @@ jobs:
           app_id: ${{ secrets.APP_ACTION_SEC_SCANNER_ID }}
           private_key: ${{ secrets.APP_ACTION_SEC_SCANNER_PEM }}
 
-      - name: Add GitHub Action Details from PR
-        uses: ActionsDesk/github-actions-details-action@v2.2.0
-        with:
-          search_token: ${{ steps.app_token.outputs.token }}
-          allow_list_path: github-actions-allow-list.yml
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get action detail
+        env:
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          python3 src/get_action_detail.py
   cleanup-dir:
     if: contains("GHA request:", "${{ github.event.pull_request.title }}")
     needs: ["checkov", "codeql", "get-action-details"]
