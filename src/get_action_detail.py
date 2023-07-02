@@ -31,7 +31,7 @@ def get_action_name():
             .replace("\\n'", "")
         )
     except subprocess.CalledProcessError as error_message:
-        print(f"Error getting modified action name: {error_message}")
+        print(f"Error getting modified action name: {error_message.output}")
         raise subprocess.CalledProcessError from error_message
 
     print(modified_action_name)
