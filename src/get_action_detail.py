@@ -10,22 +10,30 @@ def get_action_name():
     """
     Get action name from the requested action.
 
+    Raises:
+        subprocess.CalledProcessError: If git command fails.
+
     Returns:
         Action name.
     """
     # Get modified action
-    modified_action_name = (
-        str(
-            subprocess.check_output(
-                f'git diff main HEAD github-actions-allow-list.yml | grep "^+" | grep -v "yml"',
-                shell=True,
-                stderr=subprocess.STDOUT,
+    try:
+        modified_action_name = (
+            str(
+                subprocess.check_output(
+                    f'git diff main HEAD github-actions-allow-list.yml | grep "^+" | grep -v "yml"',
+                    shell=True,
+                    stderr=subprocess.STDOUT,
+                )
             )
+            .replace("+- ", "")
+            .strip()
+            .replace("\\n'", "")
         )
-        .replace("+- ", "")
-        .strip()
-        .replace("\\n'", "")
-    )
+    except subprocess.CalledProcessError as error_message:
+        print(f"Error getting modified action name: {error_message}")
+        raise subprocess.CalledProcessError from error_message
+
     print(modified_action_name)
 
     return modified_action_name
