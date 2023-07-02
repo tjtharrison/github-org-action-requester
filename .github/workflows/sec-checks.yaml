@@ -48,21 +48,21 @@ jobs:
 #        uses: github/codeql-action/analyze@v2
 #        with:
 #          category: "/language:${{matrix.language}}"
-#  cleanup-dir:
-#    if: contains("GHA request:", "${{ github.event.pull_request.title }}")
+  cleanup-dir:
+    if: contains("GHA request:", "${{ github.event.pull_request.title }}")
 #    needs: ["checkov", "codeql"]
-#    name: Cleanup
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout repo
-#        uses: actions/checkout@v3
-#      - name: Cleanup
-#        run: |
-#          rm -rf action_dir
-#      - name: Update PR
-#        uses: stefanzweifel/git-auto-commit-action@v4
+    name: Cleanup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+      - name: Cleanup
+        run: |
+          rm -rf action_dir
+      - name: Update PR
+        uses: stefanzweifel/git-auto-commit-action@v4
   get-action-details:
-#    needs: ["cleanup-dir"]
+    needs: ["cleanup-dir"]
     name: get-action-details
     runs-on: ubuntu-latest
     if: contains("GHA request:", "${{ github.event.pull_request.title }}")
