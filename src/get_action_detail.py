@@ -17,12 +17,12 @@ def get_action_name():
     modified_action_name = (
         str(
             subprocess.check_output(
-                f'gh pr diff {os.environ.get("PR_NUMBER")} | grep "^+" | grep -v "yml"',
+                f'git diff main HEAD github-actions-allow-list.yml | grep "^+" | grep -v "yml"',
                 shell=True,
                 stderr=subprocess.STDOUT,
             )
         )
-        .replace("b'+- ", "")
+        .replace("+- ", "")
         .strip()
         .replace("\\n'", "")
     )
