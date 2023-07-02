@@ -21,7 +21,7 @@ def get_action_name():
         modified_action_name = (
             str(
                 subprocess.check_output(
-                    f'git diff origin HEAD -- github-actions-allow-list.yml | grep "^+" | grep -v "yml"',
+                    f'gh pr diff {os.environ.get("PR_NUMBER")} | grep \"^+\" | grep -v \"yml\"',
                     shell=True,
                     stderr=subprocess.STDOUT,
                 )
