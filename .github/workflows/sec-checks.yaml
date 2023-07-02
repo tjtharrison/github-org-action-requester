@@ -89,5 +89,6 @@ jobs:
       - name: Get action detail
         env:
           PR_NUMBER: ${{ github.event.number }}
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}
         run: |
           python3 src/get_action_detail.py
