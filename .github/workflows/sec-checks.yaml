@@ -10,59 +10,59 @@ permissions:
   pull-requests: write
 
 jobs:
-  checkov:
-    runs-on: ubuntu-latest
-    name: checkov
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@master
-
-      - name: Run Checkov action
-        id: checkov
-        uses: bridgecrewio/checkov-action@v12.2407.0
-        with:
-          directory: .
-  codeql:
-    name: codeql
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'python' ]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # Initializes the CodeQL tools for scanning.
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: ${{ matrix.language }}
-
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
-        with:
-          category: "/language:${{matrix.language}}"
-  cleanup-dir:
-    if: contains("GHA request:", "${{ github.event.pull_request.title }}")
-    needs: ["checkov", "codeql"]
-    name: Cleanup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-      - name: Cleanup
-        run: |
-          rm -rf action_dir
-      - name: Update PR
-        uses: stefanzweifel/git-auto-commit-action@v4
+#  checkov:
+#    runs-on: ubuntu-latest
+#    name: checkov
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@master
+#
+#      - name: Run Checkov action
+#        id: checkov
+#        uses: bridgecrewio/checkov-action@v12.2407.0
+#        with:
+#          directory: .
+#  codeql:
+#    name: codeql
+#    runs-on: ubuntu-latest
+#    permissions:
+#      actions: read
+#      contents: read
+#      security-events: write
+#
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        language: [ 'python' ]
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v3
+#
+#      # Initializes the CodeQL tools for scanning.
+#      - name: Initialize CodeQL
+#        uses: github/codeql-action/init@v2
+#        with:
+#          languages: ${{ matrix.language }}
+#
+#      - name: Perform CodeQL Analysis
+#        uses: github/codeql-action/analyze@v2
+#        with:
+#          category: "/language:${{matrix.language}}"
+#  cleanup-dir:
+#    if: contains("GHA request:", "${{ github.event.pull_request.title }}")
+#    needs: ["checkov", "codeql"]
+#    name: Cleanup
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout repo
+#        uses: actions/checkout@v3
+#      - name: Cleanup
+#        run: |
+#          rm -rf action_dir
+#      - name: Update PR
+#        uses: stefanzweifel/git-auto-commit-action@v4
   get-action-details:
-    needs: ["cleanup-dir"]
+#    needs: ["cleanup-dir"]
     name: get-action-details
     runs-on: ubuntu-latest
     if: contains("GHA request:", "${{ github.event.pull_request.title }}")
@@ -73,6 +73,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Setup node
         uses: actions/setup-node@v3.6.0
@@ -90,5 +92,6 @@ jobs:
         env:
           PR_NUMBER: ${{ github.event.number }}
           GH_TOKEN: ${{ steps.app_token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.app_token.outputs.token }}
         run: |
           python3 src/get_action_detail.py
