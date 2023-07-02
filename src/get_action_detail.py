@@ -26,6 +26,7 @@ def get_action_name():
         .strip()
         .replace("\\n'", "")
     )
+    print(modified_action_name)
 
     return modified_action_name
 
