@@ -60,7 +60,7 @@ jobs:
         run: |
           rm -rf action_dir
       - name: Update PR
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
   get-action-details:
     needs: ["cleanup-dir"]
     name: get-action-details
