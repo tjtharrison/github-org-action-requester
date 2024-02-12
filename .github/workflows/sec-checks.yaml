@@ -83,7 +83,7 @@ jobs:
 
       - name: Get token from Github App
         id: app_token
-        uses: getsentry/action-github-app-token@v2
+        uses: getsentry/action-github-app-token@v3
         with:
           app_id: ${{ secrets.APP_ACTION_SEC_SCANNER_ID }}
           private_key: ${{ secrets.APP_ACTION_SEC_SCANNER_PEM }}
